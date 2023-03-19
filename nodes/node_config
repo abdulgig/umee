@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# All globals/constants here..
 
 # Node Settings
 CHAIN_DIR=node-settings
