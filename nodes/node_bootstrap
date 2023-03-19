@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+source node_config
+sc_name=`basename "$0"`
+
+# Logging
+node_log(){
+
+  log_text=$1
+  TIMESTAMP=$(date "+%Y-%m-%d %T")
+  echo "$TIMESTAMP - $log_text" >> $LOG_FILE
+}
+
+# Exit on error
+node_exit(){
+
+  log_text=$1
+  TIMESTAMP=$(date "+%Y-%m-%d %T")
+  echo "$TIMESTAMP - $log_text"
+  exit 0
+}
+
+# Node accounts and genesis configuration
+node_accounts_setup(){
+
+  # Build genesis file and create accounts
+  
+  node_log "Build genesis file and create accounts"
+  
+  if [[ "$STAKE_DENOM" != "$DENOM" ]]; then
+    coins="1000000$SCALE_FACTOR$STAKE_DENOM,1000000$SCALE_FACTOR$DENOM"
+  else
+    coins="1000000$SCALE_FACTOR$DENOM"
+  fi
+  coins_user="1000000$SCALE_FACTOR$DENOM"
+
+  # Keys Setup
+  yes "$VAL0_MNEMONIC$NEWLINE" | umeed --home "$CHAIN_DIR" keys add $VAL0_KEY $kbt --recover
+  yes "$USER_MNEMONIC$NEWLINE" | umeed --home "$CHAIN_DIR" keys add $USER_KEY $kbt --recover
+  yes "$USER2_MNEMONIC$NEWLINE" | umeed --home "$CHAIN_DIR" keys add $USER2_KEY $kbt --recover
+
+  umeed --home "$CHAIN_DIR" keys show $VAL0_KEY -a $kbt
+  umeed --home "$CHAIN_DIR" keys show $VAL0_KEY -a --bech val $kbt
+  umeed --home "$CHAIN_DIR" keys show $USER_KEY -a $kbt
+  umeed --home "$CHAIN_DIR" add-genesis-account $(umeed --home "$CHAIN_DIR" keys show $VAL0_KEY -a $kbt) $coins 2>> $LOG_FILE
+  umeed --home "$CHAIN_DIR" add-genesis-account $USER_ADDR $coins_user 2>> $LOG_FILE
+
+}
+
+# Node patch genesis
+node_patch_genesis(){
+  
+  node_log "Patching genesis file"
+  
+  if [[ "$STAKE_DENOM" == "$DENOM" ]]; then
+    jq '.consensus_params["block"]["time_iota_ms"]="5000"
+      | .app_state["crisis"]["constant_fee"]["denom"]="'$DENOM'"
+      | .app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="'$DENOM'"
+      | .app_state["mint"]["params"]["mint_denom"]="'$DENOM'"
+      | .app_state["staking"]["params"]["bond_denom"]="'$DENOM'"
+      | .app_state["gravity"]["params"]["bridge_ethereum_address"]="0x93b5122922F9dCd5458Af42Ba69Bd7baEc546B3c"
+      | .app_state["gravity"]["params"]["bridge_chain_id"]="5"
+      | .app_state["gravity"]["params"]["bridge_active"]=false
+      | .app_state["gravity"]["delegate_keys"]=[{"validator":"umeevaloper1y6xz2ggfc0pcsmyjlekh0j9pxh6hk87ymuzzdn","orchestrator":"'$VAL0_ADDR'","eth_address":"0xfac5EC50BdfbB803f5cFc9BF0A0C2f52aDE5b6dd"},{"validator":"umeevaloper1qjehhqdnc4mevtsumk6nkhm39nqrqtcy2f5k6k","orchestrator":"umee1qjehhqdnc4mevtsumk6nkhm39nqrqtcy2dnetu","eth_address":"0x02fa1b44e2EF8436e6f35D5F56607769c658c225"},{"validator":"umeevaloper1s824eseh42ndyawx702gwcwjqn43u89dhmqdw8","orchestrator":"umee1s824eseh42ndyawx702gwcwjqn43u89dhl8zld","eth_address":"0xd8f468c1B719cc2d50eB1E3A55cFcb60e23758CD"}]
+      | .app_state["gravity"]["gravity_nonces"]["latest_valset_nonce"]="0"
+      | .app_state["gravity"]["gravity_nonces"]["last_observed_nonce"]="0"
+      | .app_state["gov"]["voting_params"]["voting_period"]="'$VOTING_PERIOD'"' \
+        $CONFIG_DIR/genesis.json > $CONFIG_DIR/tmp_genesis.json && mv $CONFIG_DIR/tmp_genesis.json $CONFIG_DIR/genesis.json
+  fi
+
+  jq '.app_state["gov"]["voting_params"]["voting_period"]="'$VOTING_PERIOD'"' $CONFIG_DIR/genesis.json > $CONFIG_DIR/tmp_genesis.json && mv $CONFIG_DIR/tmp_genesis.json $CONFIG_DIR/genesis.json
+
+  umeed --home "$CHAIN_DIR" gentx-gravity $VAL0_KEY 1000$SCALE_FACTOR$STAKE_DENOM 0xfac5EC50BdfbB803f5cFc9BF0A0C2f52aDE5b6dd $VAL0_ADDR $kbt --chain-id "$CHAIN_ID" 2>> $LOG_FILE
+  umeed --home "$CHAIN_DIR" collect-gentxs 2>> $LOG_FILE
+  umeed --home "$CHAIN_DIR" validate-genesis 2>> $LOG_FILE
+
+}
+
+# Node config override
+node_config_override(){
+
+  node_log "Checking override settings"
+  
+  if [[ "$CONFIG_OVERRIDE" = "1" ]]; then
+    node_log "Rolling custom configuration"
+    rm -f $CONFIG_DIR/*.toml
+    cp -f /opt/*.toml $CONFIG_DIR/
+  else
+    # Put config defaults here . .
+    node_log "Rolling default configuration"
+    sed -i "s/.*addr_book_strict.*/addr_book_strict = true/" $CONFIG_DIR/config.toml
+    sed -i "s/.*allow_duplicate_ip.*/allow_duplicate_ip = true/" $CONFIG_DIR/config.toml
+  fi
+
+}
+
+# Node defaults
+node_defaults(){
+ 
+  node_log "Setting node defaults  . ."
+  
+  # Initialize ENV variables here . .
+  ucode=`openssl rand -hex 6`
+
+  if [[ "$MONIKER" = "" ]]; then
+    MONIKER=umee-$ucode
+  fi
+
+  if [[ "$CHAIN_ID" = "" ]]; then
+    CHAIN_ID=umee-chain-$ucode
+  fi
+
+  if [[ "$DB_BACKEND" = "" ]]; then
+    DB_BACKEND=badgerdb
+  fi
+
+  if [[ "$LOG_LEVEL" = "" ]]; then
+    LOG_LEVEL=info
+  fi
+
+  if [[ "$MIN_GAS_PRICE" = "" ]]; then
+    MIN_GAS_PRICE="0.1uumee"
+  fi
+}
+
+# Node start
+node_start(){
+
+  node_log "Starting Node . ."
+  node_defaults
+  umeed --home "$CHAIN_DIR" --chain-id "$CHAIN_ID" init "$MONIKER"
+
+  if [[ ! -d "$CHAIN_DIR" ]]; then
+    node_exit "Initialization failure"
+  fi
+
+  node_config_override
+  node_accounts_setup
+  node_patch_genesis
+
+  umeed --home "$CHAIN_DIR" start --api.enable true --grpc.address="0.0.0.0:9090" --grpc-web.enable=false --db_backend $DB_BACKEND --minimum-gas-prices $MIN_GAS_PRICE --log_level $LOG_LEVEL >> $LOG_FILE 2>&1 &
+  
+  tmux new-session -d -s umeed_svc 'cd /umee && tail -f node-service.log'
+
+}

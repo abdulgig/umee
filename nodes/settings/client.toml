@@ -1,0 +1,6 @@
+
+chain-id = "1234"
+keyring-backend = "os"
+output = "text"
+node = "tcp://localhost:26657"
+broadcast-mode = "sync"

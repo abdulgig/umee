@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Node Settings
+CHAIN_DIR=node-settings
+CONFIG_DIR=$CHAIN_DIR/config
+kbt="--keyring-backend test"
+USER_DIR=/root
+DENOM="${DENOM:-uumee}"
+STAKE_DENOM="${STAKE_DENOM:-$DENOM}"
+SCALE_FACTOR="${SCALE_FACTOR:-000000}"
+VOTING_PERIOD="${VOTING_PERIOD:-15s}"
+LOG_FILE=node-service.log
+
+# Node Accounts
+# Default 1 account keys + 1 user key with no special grants
+VAL0_KEY="val"
+VAL0_MNEMONIC="copper push brief egg scan entry inform record adjust fossil boss egg comic alien upon aspect dry avoid interest fury window hint race symptom"
+VAL0_ADDR="umee1y6xz2ggfc0pcsmyjlekh0j9pxh6hk87ymc9due"
+
+USER_KEY="user"
+USER_MNEMONIC="pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"
+USER_ADDR="umee1usr9g5a4s2qrwl63sdjtrs2qd4a7huh6cuuhrc"
+
+USER2_KEY="user2"
+USER2_MNEMONIC="voice damage response make wave access object improve outer hazard all digital violin noise scissors pulse phone circle ski market best diary weapon acid"
+USER2_ADDR="umee1x2w9cesnz93n8e7jc9pzy9agc35jw7prg7v970"
+
+NEWLINE=$'\n'
