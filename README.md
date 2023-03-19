@@ -1,2 +1,2 @@
-# umee
-Umee Network
+# Umee
+
