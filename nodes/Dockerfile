@@ -10,9 +10,9 @@ RUN set -ex; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
     wget \
-  	curl \
+    curl \
     net-tools \
-	jq \
+    jq \
     tree \
     tmux \
     gpg-agent \
