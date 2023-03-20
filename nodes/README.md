@@ -116,4 +116,15 @@ You can see live logs under a tmux-session, run ```tmux at```
 
 ```
 
+### Node Directories
+
+Once you bash into the node container, the home directory is ```/umee```
+
+| Files and Directories      | Purpose                                               |
+|--------------------------- |-------------------------------------------------------|
+| /umee                      | This the home directory where everything lives        |
+| /umee/node-settings/config | Node configuration files under this directory         |
+| /umee/node-settings/data   | Node data under this directory                        |
+| node-service.log           | Node logs are written to this file                    |
+
 
