@@ -52,7 +52,17 @@ docker run -dit --name umee-node --hostname umee-node \
   my_umee_image:v1 
 
 ```
+#### Understanding ENV variables
 
+| FLAG / ENV VARIABLES           | VALUES                      |
+|------------------------------- |-----------------------------|
+| UMEE_BINARY_VERSION            | Set the binary you want to use, Default = v4.2.0|
+| CONFIG_OVERRIDE                | Set it to 1 if you want to launch the node based upon the config files under the "settings" directory,  Default = 0|
+| MONIKER                        | Set the node identifier, default is randomly generated|
+| CHAIN_ID                       | Set the chainID, default is randomly generated|
+| DB_BACKEND                     | Set the DB_BACKEND [goleveldb, cleveldb, boltdb, rocksdb, badgerdb], default is rocksdb|
+| MIN_GAS_PRICE                  | Set MIN_GAS_PRICE, default is 0.1uumee|
+| LOG_LEVEL                      | Set the log level, default is info|
 
 
 
