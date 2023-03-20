@@ -35,7 +35,13 @@ Successfully built c14c4d11e713
 Successfully tagged my_umee_image:v1
 ```
 
-Now you can launch the node, here is a sample command below
+Now you can launch the node, here is a sample command below,
+
+```
+docker run -dit --name umee-node --hostname umee-node my_umee_image:v1 bash
+```
+
+To modify node options on the fly, try using the command below
 
 ```
 docker run -dit --name umee-node --hostname umee-node \
@@ -52,6 +58,7 @@ docker run -dit --name umee-node --hostname umee-node \
   my_umee_image:v1 
 
 ```
+
 #### Understanding ENV variables
 
 | FLAG / ENV VARIABLES           | VALUES                      |
@@ -64,6 +71,6 @@ docker run -dit --name umee-node --hostname umee-node \
 | MIN_GAS_PRICE                  | Set MIN_GAS_PRICE, default is 0.1uumee|
 | LOG_LEVEL                      | Set the log level, default is info|
 
-
+Modify the **-p** flag and expose the ports based upon your requirements.
 
 
