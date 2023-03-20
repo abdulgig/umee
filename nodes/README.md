@@ -6,7 +6,7 @@ This is a dockerized and a parameterized setup. The paramaters can be optionally
 
 ## How to launch the node ? 
 
-### Step 1 -  
+### Step 1 -  ##### Clone and build your node image
 
 Clone the repo and navigate to the nodes folder and build your own node image. 
 
@@ -20,9 +20,9 @@ cd umee-infra/nodes/single-node/
 docker build -t my_umee_image:v1 .
 ```
 
-### Step 2 -
+### Step 2 - ##### Launch your node
 
-Once the node image is successfully build, you should see something like,
+Once the node image is successfully built, you should see something like,
 
 ```
 Removing intermediate container 7326b730beb4
@@ -74,3 +74,4 @@ docker run -dit --name umee-node --hostname umee-node \
 Modify the **-p** flag and expose the ports based upon your requirements.
 
 
+### Step 3 - ##### Test your node
