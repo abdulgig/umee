@@ -8,17 +8,23 @@ This is a dockerized and a parameterized setup. The paramaters can be optionally
 
 ### Step 1 -  
 
-Clone the repo and navigate to the nodes folder and build your node image. 
+Clone the repo and navigate to the nodes folder and build your own node image. 
 
-**You can also modify the go version in your build. In the Dockerfile, modify the GO_VERSION, default is 1.20**
+**You can also modify the go version in your build. In the Dockerfile, modify the ENV variable GO_VERSION , default is 1.20.** However, please ensure that your go version is compatible with the umeed binary you are going to use.
 
-However, please ensure that it is compatible with the umeed binary you are going to use.
+Here _my_super_node_ is the name of your image you are going to build. Don't miss the **"."** in the end of the command
 
 ```
 git clone https://github.com/umee-network/umee-infra.git -b main
 cd umee-infra/nodes/single-node/
-docker build -t single_node:v1 .
+docker build -t my_super_node:v1 .
 ```
+
+### Step 2 -
+
+
+
+
 
 
 
